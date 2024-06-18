@@ -4,9 +4,10 @@ import {
   BiconomySmartAccountV2,
 } from "@biconomy/account";
 
+let smartAccount: BiconomySmartAccountV2 | null = null;
+
 export const connect = async (
   wallets: any[],
-  setSmartAccount: (account: BiconomySmartAccountV2 | null) => void,
   setSmartAccountAddress: (address: string | null) => void
 ) => {
   try {
@@ -24,10 +25,21 @@ export const connect = async (
       biconomyPaymasterApiKey: "EegseJJl5.0761a753-58e6-4cc0-b69f-db099d9592d6",
     });
 
-    setSmartAccount(smartWallet);
+    smartAccount = smartWallet;
     const saAddress = await smartWallet.getAccountAddress();
     setSmartAccountAddress(saAddress);
   } catch (error) {
     console.error("Connection error:", error);
   }
+};
+
+export const signMessage = async () => {
+  if (!smartAccount) {
+    console.error("Smart Account not initialized");
+    return;
+  }
+
+  const message = "Hello";
+  const signature = await smartAccount.signMessage(message);
+  console.log("Signature", signature);
 };

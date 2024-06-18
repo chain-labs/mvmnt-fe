@@ -1,39 +1,9 @@
 "use client";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { BiconomySmartAccountV2 } from "@biconomy/account";
-import { useEffect, useState } from "react";
-import { connect } from "./accUtils";
+import { useSmartAcc } from "./useSmartAcc";
 
 export default function Home() {
-  const [smartAccount, setSmartAccount] =
-    useState<BiconomySmartAccountV2 | null>(null);
-  const [smartAccountAddress, setSmartAccountAddress] = useState<string | null>(
-    null
-  );
-
-  const { login, logout, authenticated } = usePrivy();
-  const { wallets } = useWallets();
-
-  const onLogIn = () => {
-    login();
-  };
-
-  useEffect(() => {
-    if (authenticated) {
-      connect(wallets, setSmartAccount, setSmartAccountAddress);
-    }
-  }, [login]);
-
-  const signMessage = async () => {
-    if (!smartAccount) {
-      console.error("Smart Account not initialized");
-      return;
-    }
-
-    const message = "Hello";
-    const signature = await smartAccount.signMessage(message);
-    console.log("Signature", signature);
-  };
+  const { smartAccountAddress, onLogIn, logout, signMessage, authenticated } =
+    useSmartAcc();
 
   return (
     <main className="flex flex-col justify-center h-screen items-center gap-20">
