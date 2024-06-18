@@ -1,7 +1,7 @@
 "use client";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { BiconomySmartAccountV2 } from "@biconomy/account";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "./accUtils";
 
 export default function Home() {
@@ -10,20 +10,19 @@ export default function Home() {
   const [smartAccountAddress, setSmartAccountAddress] = useState<string | null>(
     null
   );
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const { login, logout } = usePrivy();
+  const { login, logout, authenticated } = usePrivy();
   const { wallets } = useWallets();
 
   const onLogIn = () => {
-    connect(
-      login,
-      wallets,
-      setSmartAccount,
-      setSmartAccountAddress,
-      setIsLoggedIn
-    );
+    login();
   };
+
+  useEffect(() => {
+    if (authenticated) {
+      connect(wallets, setSmartAccount, setSmartAccountAddress);
+    }
+  }, [login]);
 
   const signMessage = async () => {
     if (!smartAccount) {
@@ -38,24 +37,31 @@ export default function Home() {
 
   return (
     <main className="flex flex-col justify-center h-screen items-center gap-20">
-      <button
-        className="bg-purple-500 p-2 px-3 w-[100px] rounded-xl"
-        onClick={onLogIn}
-      >
-        Log In
-      </button>
-      <button
-        className="bg-blue-500 p-2 px-3 w-[100px] rounded-xl"
-        onClick={signMessage}
-      >
-        Sign Message
-      </button>
-      <button
-        className="bg-red-500 p-2 px-3 w-[100px] rounded-xl"
-        onClick={logout}
-      >
-        Log Out
-      </button>
+      {!authenticated && (
+        <button
+          className="bg-blue-400 p-3 w-[170px] rounded-xl"
+          onClick={onLogIn}
+        >
+          Log In
+        </button>
+      )}
+      {authenticated && <div>Smart Account Address: {smartAccountAddress}</div>}
+      {authenticated && (
+        <button
+          className="bg-purple-500 p-3 w-[170px] rounded-xl"
+          onClick={signMessage}
+        >
+          Sign Message
+        </button>
+      )}
+      {authenticated && (
+        <button
+          className="bg-red-500 p-3 w-[170px] rounded-xl"
+          onClick={logout}
+        >
+          Log Out
+        </button>
+      )}
     </main>
   );
 }
