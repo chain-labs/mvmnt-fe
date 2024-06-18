@@ -1,5 +1,5 @@
 "use client";
-import { useSmartAcc } from "./useSmartAcc";
+import { useSmartAcc } from "./web3Utils/useSmartAcc";
 
 export default function Home() {
   const { smartAccountAddress, onLogIn, logout, signMessage, authenticated } =

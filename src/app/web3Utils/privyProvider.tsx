@@ -1,5 +1,4 @@
 "use client";
-
 import { PrivyProvider } from "@privy-io/react-auth";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
