@@ -2,7 +2,7 @@
 import { useSmartAcc } from "./web3Utils/useSmartAcc";
 
 export default function Home() {
-  const { smartAccountAddress, onLogIn, logout, signMessage, authenticated } =
+  const { smartAccountAddress, login, logout, signMessage, authenticated } =
     useSmartAcc();
 
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       {!authenticated ? (
         <button
           className="bg-blue-400 p-3 w-[170px] rounded-xl"
-          onClick={onLogIn}
+          onClick={login}
         >
           Log In
         </button>
