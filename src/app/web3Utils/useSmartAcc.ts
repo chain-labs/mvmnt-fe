@@ -1,4 +1,9 @@
-import { usePrivy, useWallets, useLogin } from "@privy-io/react-auth";
+import {
+  usePrivy,
+  useWallets,
+  useLogin,
+  useLoginWithEmail,
+} from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 import { connect, signMessage } from "./accUtils";
 
@@ -7,19 +12,24 @@ export const useSmartAcc = () => {
     null
   );
 
-  const { logout, authenticated, linkPhone, linkEmail } = usePrivy();
-  const { wallets } = useWallets();
+  const { sendCode, loginWithCode } = useLoginWithEmail();
+  const { logout, authenticated, linkPhone, createWallet, user } = usePrivy();
+  const { ready, wallets } = useWallets();
 
   const { login } = useLogin({
-    onComplete: (user) => {
-      if (!user.phone) {
-        linkPhone();
-      }
-      if (!user.email) {
-        linkEmail();
-      }
+    onComplete: () => {
+      // console.log("user", user);
+      // console.log("isNewUser", isNewUser);
     },
   });
+
+  useEffect(() => {
+    if (authenticated && ready) {
+      if (user?.wallet?.walletClientType !== "privy") {
+        createWallet();
+      }
+    }
+  }, [loginWithCode]);
 
   useEffect(() => {
     if (authenticated) {
@@ -27,5 +37,14 @@ export const useSmartAcc = () => {
     }
   }, [wallets]);
 
-  return { smartAccountAddress, login, logout, signMessage, authenticated };
+  return {
+    sendCode,
+    loginWithCode,
+    smartAccountAddress,
+    login,
+    logout,
+    signMessage,
+    authenticated,
+    linkPhone,
+  };
 };

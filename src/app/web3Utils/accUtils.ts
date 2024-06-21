@@ -15,16 +15,13 @@ export const connect = async (
   setSmartAccountAddress: (address: string | null) => void
 ) => {
   try {
-    // const embeddedWallet = wallets.find(
-    //   (wallet) => wallet.walletClientType === "privy"
-    // );
     const embeddedWallet = getEmbeddedConnectedWallet(
       wallets
     ) as ConnectedWallet;
 
     await embeddedWallet.switchChain(baseSepolia.id);
     const provider = await embeddedWallet.getEthersProvider();
-    const signer = await provider.getSigner();
+    const signer = provider.getSigner();
 
     const smartWallet = await createSmartAccountClient({
       signer: signer,
