@@ -3,10 +3,6 @@ import {
   createSmartAccountClient,
   BiconomySmartAccountV2,
 } from "@biconomy/account";
-import {
-  ConnectedWallet,
-  getEmbeddedConnectedWallet,
-} from "@privy-io/react-auth";
 
 let smartAccount: BiconomySmartAccountV2 | null = null;
 
@@ -15,9 +11,9 @@ export const connect = async (
   setSmartAccountAddress: (address: string | null) => void
 ) => {
   try {
-    const embeddedWallet = getEmbeddedConnectedWallet(
-      wallets
-    ) as ConnectedWallet;
+    const embeddedWallet = wallets.find(
+      (wallet) => wallet.walletClientType === "privy"
+    );
 
     await embeddedWallet.switchChain(baseSepolia.id);
     const provider = await embeddedWallet.getEthersProvider();

@@ -6,6 +6,7 @@ import {
 } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 import { connect, signMessage } from "./accUtils";
+import { log } from "console";
 
 export const useSmartAcc = () => {
   const [smartAccountAddress, setSmartAccountAddress] = useState<string | null>(
@@ -16,10 +17,32 @@ export const useSmartAcc = () => {
   const { logout, authenticated, linkPhone, createWallet, user } = usePrivy();
   const { ready, wallets } = useWallets();
 
+  const handleDelete = async (userId: string) => {
+    try {
+      const response = await fetch("/api/userDelete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: userId }),
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("An error occurred");
+    }
+  };
+
   const { login } = useLogin({
-    onComplete: () => {
-      // console.log("user", user);
-      // console.log("isNewUser", isNewUser);
+    onComplete: (user) => {
+      console.log("user", user);
+      if (!user.email) {
+        console.log(
+          "Your Account is not verified yet. Please verify your email"
+        );
+        handleDelete(user.id);
+        logout();
+      }
     },
   });
 
@@ -29,13 +52,19 @@ export const useSmartAcc = () => {
         createWallet();
       }
     }
-  }, [loginWithCode]);
+  }, [useLoginWithEmail]);
 
   useEffect(() => {
     if (authenticated) {
       connect(wallets, setSmartAccountAddress);
     }
   }, [wallets]);
+
+  // useEffect(() => {
+  //   if (authenticated && ready) {
+
+  //   }
+  // }, [login]);
 
   return {
     sendCode,
