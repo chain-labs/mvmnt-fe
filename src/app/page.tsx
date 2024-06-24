@@ -37,10 +37,7 @@ export default function Home() {
           </button>
           <button
             className="bg-orange-500 p-3 w-[170px] rounded-xl"
-            onClick={() => {
-              linkPhone;
-              console.log("Phone Linked");
-            }}
+            onClick={linkPhone}
           >
             Link Phone
           </button>
