@@ -34,9 +34,7 @@ export const useSmartAcc = () => {
         console.log(
           "Your Account is not verified yet. Please verify your email"
         );
-        async () => {
-          await handleDelete(user.id);
-        };
+        handleDelete(user.id);
         logout();
         return;
       }
