@@ -6,6 +6,7 @@ import {
 } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 import { connect, signMessage } from "./accUtils";
+import { handleDelete } from "./utilsMethods";
 
 export const useSmartAcc = () => {
   const [smartAccountAddress, setSmartAccountAddress] = useState<string | null>(
@@ -13,6 +14,7 @@ export const useSmartAcc = () => {
   );
 
   const { sendCode, loginWithCode } = useLoginWithEmail();
+
   const {
     ready: privyReady,
     logout,
@@ -21,24 +23,8 @@ export const useSmartAcc = () => {
     createWallet,
     user,
   } = usePrivy();
-  const { ready: walletsReady, wallets } = useWallets();
 
-  // Delete user if verification condition is not met
-  const handleDelete = async (userId: string) => {
-    try {
-      const response = await fetch("/api/userDelete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: userId }),
-      });
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error("An error occurred");
-    }
-  };
+  const { ready: walletsReady, wallets } = useWallets();
 
   //callbacks for login flow
   const { login } = useLogin({
@@ -48,40 +34,24 @@ export const useSmartAcc = () => {
         console.log(
           "Your Account is not verified yet. Please verify your email"
         );
-        handleDelete(user.id);
+        async () => {
+          await handleDelete(user.id);
+        };
         logout();
+        return;
       }
       //check if user has registered, if not delete user
       if (!user.wallet) {
         console.log("User not registered. Please register first.");
         handleDelete(user.id);
         logout();
+        return;
       }
     },
   });
 
-  // console.log("user", user?.createdAt);
-  // const createdAt = new Date(user?.createdAt ?? "");
-  // const d = new Date();
-  // console.log(createdAt < d);
-
   //registration flow, created wallet for user when registering
   useEffect(() => {
-    // if (authenticated && privyReady && walletsReady) {
-    //   if (wallets.length === 0) {
-    //     if (!user?.wallet && user?.email) {
-    //       setTimeout(async () => {
-    //         try {
-    //           await createWallet();
-    //           console.log("Wallet Created");
-    //         } catch (error) {
-    //           console.log("Error creating wallet:", error);
-    //           logout();
-    //         }
-    //       });
-    //     }
-    //   }
-    // }
     const walletCreation = async () => {
       if (authenticated && privyReady && walletsReady) {
         if (wallets.length === 0 && user?.email && !user?.wallet) {
@@ -92,8 +62,6 @@ export const useSmartAcc = () => {
             console.log("Error creating wallet:", error);
             logout();
           }
-        } else {
-          console.log("Wallet already created");
         }
       }
     };
