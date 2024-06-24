@@ -4,6 +4,8 @@ import Register from "./web3Utils/Register";
 
 export default function Home() {
   const {
+    privyReady,
+    walletsReady,
     smartAccountAddress,
     login,
     logout,
@@ -14,7 +16,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col justify-center h-screen items-center gap-20">
-      {!authenticated ? (
+      {!authenticated && privyReady && walletsReady ? (
         <>
           <Register />
           <button

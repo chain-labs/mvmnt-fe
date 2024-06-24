@@ -13,8 +13,15 @@ export const useSmartAcc = () => {
   );
 
   const { sendCode, loginWithCode } = useLoginWithEmail();
-  const { logout, authenticated, linkPhone, createWallet, user } = usePrivy();
-  const { ready, wallets } = useWallets();
+  const {
+    ready: privyReady,
+    logout,
+    authenticated,
+    linkPhone,
+    createWallet,
+    user,
+  } = usePrivy();
+  const { ready: walletsReady, wallets } = useWallets();
 
   // Delete user if verification condition is not met
   const handleDelete = async (userId: string) => {
@@ -36,7 +43,6 @@ export const useSmartAcc = () => {
   //callbacks for login flow
   const { login } = useLogin({
     onComplete: (user) => {
-      console.log("user", user);
       //check if user has verified email, if not delete user
       if (!user.email) {
         console.log(
@@ -61,35 +67,48 @@ export const useSmartAcc = () => {
 
   //registration flow, created wallet for user when registering
   useEffect(() => {
-    if (authenticated && ready) {
-      if (wallets.length === 0) {
-        console.log("wallets", wallets);
-        if (!user?.wallet) {
-          setTimeout(async () => {
-            try {
-              await createWallet();
-              console.log("Wallet Created");
-            } catch (error) {
-              console.log("Error creating wallet:", error);
-              logout();
-            }
-          });
+    // if (authenticated && privyReady && walletsReady) {
+    //   if (wallets.length === 0) {
+    //     if (!user?.wallet && user?.email) {
+    //       setTimeout(async () => {
+    //         try {
+    //           await createWallet();
+    //           console.log("Wallet Created");
+    //         } catch (error) {
+    //           console.log("Error creating wallet:", error);
+    //           logout();
+    //         }
+    //       });
+    //     }
+    //   }
+    // }
+    const walletCreation = async () => {
+      if (authenticated && privyReady && walletsReady) {
+        if (wallets.length === 0 && user?.email && !user?.wallet) {
+          try {
+            await createWallet();
+            console.log("Wallet Created");
+          } catch (error) {
+            console.log("Error creating wallet:", error);
+            logout();
+          }
+        } else {
+          console.log("Wallet already created");
         }
       }
-      // else if (new Date() > new Date(user?.createdAt ?? "")) {
-      //   console.log("User is already registered");
-      //   logout();
-      // }
-    }
+    };
+    walletCreation();
   }, [loginWithCode]);
 
   useEffect(() => {
-    if (authenticated) {
+    if (authenticated && privyReady) {
       connect(wallets, setSmartAccountAddress);
     }
   }, [wallets]);
 
   return {
+    privyReady,
+    walletsReady,
     sendCode,
     loginWithCode,
     smartAccountAddress,
