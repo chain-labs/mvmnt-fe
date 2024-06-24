@@ -29,6 +29,7 @@ export const useSmartAcc = () => {
   //callbacks for login flow
   const { login } = useLogin({
     onComplete: (user) => {
+      console.log(user);
       //check if user has verified email, if not delete user
       if (!user.email) {
         console.log(
@@ -52,7 +53,7 @@ export const useSmartAcc = () => {
   useEffect(() => {
     const walletCreation = async () => {
       if (authenticated && privyReady && walletsReady) {
-        if (wallets.length === 0 && user?.email && !user?.wallet) {
+        if (user?.email && !user?.wallet) {
           try {
             await createWallet();
             console.log("Wallet Created");
